@@ -8,20 +8,16 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.UI;
 
-namespace RefGen
-{
-    class Program
-    {
+namespace RefGen {
+    class Program {
 
         static string author, title, conf, vol, num, pages, month, year, jour, name, txt;
         static int andtimes;
         static List<(string refresault, string name)> RefList = new List<(string, string)>();
-        static void Main(string[] args)
-        {
+        static void Main(string[] args) {
             Console.WriteLine("Press any key to start");
             Console.ReadLine();
-            foreach (var reftxt in Directory.EnumerateFiles("ref", "*.txt", SearchOption.AllDirectories))
-            {
+            foreach (var reftxt in Directory.EnumerateFiles("ref", "*.txt", SearchOption.AllDirectories)) {
                 Console.WriteLine($"processing {reftxt}");
                 txt = File.ReadAllText(reftxt, Encoding.UTF8);
                 author = Getvalue(@"author={(.*?)}");
@@ -33,7 +29,6 @@ namespace RefGen
                     Regex.Match(author, @"\. ([^.]*)(?= and)").Groups[1].Value.Trim();
 
                 author = rgx.Replace(author, ", ", andtimes - 1);
-
                 title = ToTitleCase(Getvalue(@"\ntitle={(.*?)}"));
                 conf = Getvalue(@"\nbooktitle={(.*?)}");
                 jour = Getvalue(@"\njournal={(.*?)}");
@@ -49,14 +44,12 @@ namespace RefGen
 
             StringBuilder sb = new StringBuilder();
 
-            foreach (var item in RefList)
-            {
+            foreach (var item in RefList) {
                 sb.AppendLine($"<p>{item.refresault}</p>");
             }
             StringWriter sw = new StringWriter();
 
-            using (HtmlTextWriter writer = new HtmlTextWriter(sw))
-            {
+            using (HtmlTextWriter writer = new HtmlTextWriter(sw)) {
                 writer.RenderBeginTag("!DOCTYPE html");
                 writer.RenderBeginTag(HtmlTextWriterTag.Html);
                 writer.RenderBeginTag(HtmlTextWriterTag.Head);
@@ -73,8 +66,7 @@ namespace RefGen
             }
         }
 
-        static void Combine()
-        {
+        static void Combine() {
             bool IsJournal = (jour != "none");
             string reference = $"{author}, “{title},” ";
             reference += (jour == "none") ? $"in Proceedings of <i>the {conf}</i>, " : $"<i>{jour}</i>, ";
@@ -84,19 +76,16 @@ namespace RefGen
             RefList.Add((reference, name));
         }
 
-        static string Getvalue(string pattern)
-        {
+        static string Getvalue(string pattern) {
             string temp = Regex.Match(txt, pattern).Groups[1].Value.Trim();
             if (string.IsNullOrEmpty(temp)) return "none";
             else return temp;
         }
 
-        public static string ToTitleCase(string title)
-        {
+        public static string ToTitleCase(string title) {
             string WorkingTitle = title;
 
-            if (!string.IsNullOrEmpty(WorkingTitle))
-            {
+            if (!string.IsNullOrEmpty(WorkingTitle)) {
                 char[] space = new char[] { ' ' };
 
                 List<string> artsAndPreps = new List<string>() { "and", "at", "from", "into", "of", "on", "or", "the", "to", "for", "with", };
